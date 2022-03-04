@@ -13,16 +13,16 @@ spec:
       default: docker.io/alpine/git:v2.26.2@sha256:23618034b0be9205d9cc0846eb711b12ba4c9b468efdd8a59aac1d7b1a23363f
       # mqsc repo
     - name: git-mqsc-url
-      default: github.com/ritu-patel/qm.git
+      default: github.com/IBMMQAutomation/dynamic-mqsc.git
     - name: mqsc-git-branch
       default: master
     - name: mqsc-subdirectory
-      default: qm
+      default: dynamic-mqsc
       # kustomize repo
     - name: kustomize-subdirectory
       default: mq-pipeline
     - name: git-kustomize-url
-      default: github.com/ritu-patel/mq-pipeline.git
+      default: github.com/IBMMQAutomation/mq-pipeline.git
     - name: kustommize-git-branch
       default: main
   tasks:
