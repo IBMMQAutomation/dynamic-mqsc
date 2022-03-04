@@ -5,8 +5,8 @@ metadata:
   namespace: mq
 spec:
   params:
-    - name: GIT_CONFIG_CLONE
-    - name: config-subdirectory
+    - name: git-mqsc-clone
+    - name: mqsc-subdirectory
     - name: GIT_SECRET
     - name: source-dir
     - name: git-cli-image
@@ -49,14 +49,16 @@ spec:
         git config --global user.email "$GIT_EMAIL"
         git config --global user.name "$GIT_USERNAME"
 
-        rm -rf $(params.config-subdirectory)
+        rm -rf $(params.mqsc-subdirectory)
         rm -rf $(params.kustomize-subdirectory)
 
-        $(params.GIT_CONFIG_CLONE)
+        $(params.git-mqsc-clone)
         $(params.git-kustomize-clone)
-        rm -rf $(params.config-subdirectory)/.git
+        rm -rf $(params.mqsc-subdirectory)/.git
 
-        cp -R $(params.config-subdirectory)/dev $(params.kustomize-subdirectory)/
+        cp -R $(params.mqsc-subdirectory)/dev $(params.kustomize-subdirectory)/
+        cp -R $(params.mqsc-subdirectory)/sit $(params.kustomize-subdirectory)/
+        cp -R $(params.mqsc-subdirectory)/uat $(params.kustomize-subdirectory)/
 
         cd $(params.kustomize-subdirectory)
         git add .

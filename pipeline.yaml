@@ -12,11 +12,11 @@ spec:
     - name: git-cli-image
       default: docker.io/alpine/git:v2.26.2@sha256:23618034b0be9205d9cc0846eb711b12ba4c9b468efdd8a59aac1d7b1a23363f
       # mqsc repo
-    - name: configs-git-url
+    - name: git-mqsc-url
       default: github.com/ritu-patel/qm.git
-    - name: configs-git-branch
+    - name: mqsc-git-branch
       default: master
-    - name: config-subdirectory
+    - name: mqsc-subdirectory
       default: qm
       # kustomize repo
     - name: kustomize-subdirectory
@@ -28,10 +28,10 @@ spec:
   tasks:
     - name: git-task-dev
       params:
-        - name: GIT_CONFIG_CLONE
-          value: "git clone https://${GIT_USERNAME}:${GIT_PASSWORD}@$(params.configs-git-url)"
-        - name: config-subdirectory
-          value: $(params.config-subdirectory)
+        - name: git-mqsc-clone
+          value: "git clone https://${GIT_USERNAME}:${GIT_PASSWORD}@$(params.git-mqsc-url)"
+        - name: mqsc-subdirectory
+          value: $(params.mqsc-subdirectory)
         - name: GIT_SECRET
           value: $(params.GIT_SECRET)
         - name: source-dir
