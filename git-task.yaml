@@ -1,0 +1,66 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: git-task-dev
+  namespace: mq
+spec:
+  params:
+    - name: GIT_CONFIG_CLONE
+    - name: config-subdirectory
+    - name: GIT_SECRET
+    - name: source-dir
+    - name: git-cli-image
+    - name: kustomize-subdirectory
+    - name: git-kustomize-clone
+    - name: kustommize-git-branch
+
+  volumes:
+    - name: source
+      persistentVolumeClaim:
+        claimName: tekton-pvc
+  stepTemplate:
+    volumeMounts:
+      - name: source
+        mountPath: $(params.source-dir)
+  steps:
+    - name: git-pull
+      image: $(params.git-cli-image)
+      env:
+        - name: GIT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: $(params.GIT_SECRET)
+              key: password
+              optional: true
+        - name: GIT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: $(params.GIT_SECRET)
+              key: username
+              optional: true
+        - name: GIT_EMAIL
+          valueFrom:
+            secretKeyRef:
+              name: $(params.GIT_SECRET)
+              key: email
+              optional: true
+      resources: {}
+      script: |
+        git config --global user.email "$GIT_EMAIL"
+        git config --global user.name "$GIT_USERNAME"
+
+        rm -rf $(params.config-subdirectory)
+        rm -rf $(params.kustomize-subdirectory)
+
+        $(params.GIT_CONFIG_CLONE)
+        $(params.git-kustomize-clone)
+        rm -rf $(params.config-subdirectory)/.git
+
+        cp -R $(params.config-subdirectory)/dev $(params.kustomize-subdirectory)/
+
+        cd $(params.kustomize-subdirectory)
+        git add .
+        git commit -m "tekton added dynamic mqsc"
+        git push origin $(params.kustommize-git-branch)
+
+      workingDir: $(params.source-dir)

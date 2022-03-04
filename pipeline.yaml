@@ -1,0 +1,49 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: dynamic-mqsc
+  namespace: mq
+spec:
+  params:
+    - name: GIT_SECRET
+      default: "git-credentials"
+    - name: source-dir
+      default: /source
+    - name: git-cli-image
+      default: docker.io/alpine/git:v2.26.2@sha256:23618034b0be9205d9cc0846eb711b12ba4c9b468efdd8a59aac1d7b1a23363f
+      # mqsc repo
+    - name: configs-git-url
+      default: github.com/ritu-patel/qm.git
+    - name: configs-git-branch
+      default: master
+    - name: config-subdirectory
+      default: qm
+      # kustomize repo
+    - name: kustomize-subdirectory
+      default: mq-pipeline
+    - name: git-kustomize-url
+      default: github.com/ritu-patel/mq-pipeline.git
+    - name: kustommize-git-branch
+      default: main
+  tasks:
+    - name: git-task-dev
+      params:
+        - name: GIT_CONFIG_CLONE
+          value: "git clone https://${GIT_USERNAME}:${GIT_PASSWORD}@$(params.configs-git-url)"
+        - name: config-subdirectory
+          value: $(params.config-subdirectory)
+        - name: GIT_SECRET
+          value: $(params.GIT_SECRET)
+        - name: source-dir
+          value: $(params.source-dir)
+        - name: git-cli-image
+          value: $(params.git-cli-image)
+        - name: kustomize-subdirectory
+          value: $(params.kustomize-subdirectory)
+        - name: git-kustomize-clone
+          value: "git clone https://${GIT_USERNAME}:${GIT_PASSWORD}@$(params.git-kustomize-url)"
+        - name: kustommize-git-branch
+          value: $(params.kustommize-git-branch)
+      taskRef:
+        kind: Task
+        name: git-task-dev
