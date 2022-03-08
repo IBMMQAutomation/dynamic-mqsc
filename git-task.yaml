@@ -14,14 +14,18 @@ spec:
     - name: git-kustomize-clone
     - name: kustommize-git-branch
 
-  volumes:
+  workspaces:
     - name: source
-      persistentVolumeClaim:
-        claimName: tekton-pvc
-  stepTemplate:
-    volumeMounts:
-      - name: source
-        mountPath: $(params.source-dir)
+      mountPath: $(params.source-dir)
+
+  # volumes:
+  #   - name: source
+  #     persistentVolumeClaim:
+  #       claimName: tekton-pvc
+  # stepTemplate:
+  #   volumeMounts:
+  #     - name: source
+  #       mountPath: $(params.source-dir)
   steps:
     - name: git-pull
       image: $(params.git-cli-image)
@@ -49,23 +53,19 @@ spec:
         git config --global user.email "$GIT_EMAIL"
         git config --global user.name "$GIT_USERNAME"
 
-        rm -rf $(params.mqsc-subdirectory)
-        rm -rf $(params.kustomize-subdirectory)
-
         $(params.git-mqsc-clone)
         $(params.git-kustomize-clone)
         rm -rf $(params.mqsc-subdirectory)/.git
 
-        export `cat .env`
-
         for qm in /$(params.mqsc-subdirectory)/dev/*
         do
+          echo $qm
           echo `cat $qm/.env`
           export `cat $qm/.env`
           eval "echo \"$(cat $qm/dynamic.mqsc)\"" > $qm/dynamic.mqsc
         done
 
-        echo `cat dynamic-mqsc/dev/qm01/dynamic.mqsc`
+        echo `cat $(params.mqsc-subdirectory)/dev/qm01/dynamic.mqsc`
 
         # cp -R $(params.mqsc-subdirectory)/dev $(params.kustomize-subdirectory)/
         # cp -R $(params.mqsc-subdirectory)/sit $(params.kustomize-subdirectory)/

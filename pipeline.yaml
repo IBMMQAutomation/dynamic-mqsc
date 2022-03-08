@@ -4,6 +4,9 @@ metadata:
   name: dynamic-mqsc
   namespace: mq
 spec:
+  workspaces:
+    - name: source
+
   params:
     - name: GIT_SECRET
       default: "git-credentials"
@@ -47,3 +50,6 @@ spec:
       taskRef:
         kind: Task
         name: git-task-dev
+      workspaces:
+        - name: source
+          workspace: source
