@@ -58,22 +58,20 @@ spec:
         rm -rf $(params.mqsc-subdirectory)/.git
 
         cd $(params.mqsc-subdirectory)
+        cp -u -r uat/ pte/
+        cp -u -r uat/ prd/
+        cd ..
 
-        # copy UAT dynamic mqsc to PTE and PRD
-        cp -n -R uat/ pte/
-        cp -n -R uat/ prd/
-
-        for env in dynamic-mqsc/*
+        for env in $(params.mqsc-subdirectory)/*
         do   
           for qm in $env/*
           do
-              echo `cat $qm/.env`
-              export `cat $qm/.env`
+              # export `cat $qm/.env`
+              source $qm/.env
               eval "echo \"$(cat $qm/dynamic.mqsc)\"" > $qm/dynamic.mqsc
           done
         done
 
-        cd ..
         echo `cat $(params.mqsc-subdirectory)/dev/qm01/dynamic.mqsc`
 
 
@@ -83,9 +81,9 @@ spec:
         cp -R $(params.mqsc-subdirectory)/pte $(params.kustomize-subdirectory)/
         cp -R $(params.mqsc-subdirectory)/prd $(params.kustomize-subdirectory)/
 
-        # cd $(params.kustomize-subdirectory)
-        # git add .
-        # git commit -m "tekton added dynamic mqsc"
-        # git push origin $(params.kustommize-git-branch)
+        cd $(params.kustomize-subdirectory)
+        git add .
+        git commit -m "tekton added dynamic mqsc"
+        git push origin $(params.kustommize-git-branch)
 
       workingDir: $(params.source-dir)
