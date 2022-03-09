@@ -57,19 +57,31 @@ spec:
         $(params.git-kustomize-clone)
         rm -rf $(params.mqsc-subdirectory)/.git
 
-        for qm in /$(params.mqsc-subdirectory)/dev/*
-        do
-          echo $qm
-          echo `cat $qm/.env`
-          export `cat $qm/.env`
-          eval "echo \"$(cat $qm/dynamic.mqsc)\"" > $qm/dynamic.mqsc
+        cd $(params.mqsc-subdirectory)
+
+        # copy UAT dynamic mqsc to PTE and PRD
+        cp -n -R uat/ pte/
+        cp -n -R uat/ prd/
+
+        for env in dynamic-mqsc/*
+        do   
+          for qm in $env/*
+          do
+              echo `cat $qm/.env`
+              export `cat $qm/.env`
+              eval "echo \"$(cat $qm/dynamic.mqsc)\"" > $qm/dynamic.mqsc
+          done
         done
 
+        cd ..
         echo `cat $(params.mqsc-subdirectory)/dev/qm01/dynamic.mqsc`
 
-        # cp -R $(params.mqsc-subdirectory)/dev $(params.kustomize-subdirectory)/
-        # cp -R $(params.mqsc-subdirectory)/sit $(params.kustomize-subdirectory)/
-        # cp -R $(params.mqsc-subdirectory)/uat $(params.kustomize-subdirectory)/
+
+        cp -R $(params.mqsc-subdirectory)/dev $(params.kustomize-subdirectory)/
+        cp -R $(params.mqsc-subdirectory)/sit $(params.kustomize-subdirectory)/
+        cp -R $(params.mqsc-subdirectory)/uat $(params.kustomize-subdirectory)/
+        cp -R $(params.mqsc-subdirectory)/pte $(params.kustomize-subdirectory)/
+        cp -R $(params.mqsc-subdirectory)/prd $(params.kustomize-subdirectory)/
 
         # cd $(params.kustomize-subdirectory)
         # git add .
