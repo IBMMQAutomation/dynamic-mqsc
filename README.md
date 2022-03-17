@@ -33,6 +33,8 @@
 
 ```
 
+- In this pipeline, git-task will git clone this repo and inject values from all the `.env` files to its appropriate `dynamic.mqsc`. This way you can parameterized certains things such as route for receiver QM
+
 - Suggested access for this repo: developer and admins
 
 ## Steps
