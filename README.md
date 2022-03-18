@@ -197,8 +197,6 @@ oc apply -f pipeline.yaml
 oc apply -f git-task.yaml
 ```
 
-Make sure you do not check in above files in this repo. Git-task script goes through every folder/every QM folder to check for .env files so the script will error out if you check in yaml files in this repo
-
 ### 5. Run the pipeline
 
 Recommended: you can add webhook to trigger the pipeline run
