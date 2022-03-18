@@ -2,7 +2,9 @@
 
 <img src="/readme-images/dynamic-mqsc-pipeline.png" width="55%" height="25%">
 
-**Description**: This repo has a similar folder structure as our [gitops repo](https://github.com/IBMMQAutomation/mq-pipeline) for 5 different evironments such as DEV, SIT, UAT, PTE and PRD. Each environment has different queue manager folders and each queue manager folder has dynamic.mqsc which contains mqsc changes. Notice that `prd` and `pte` doesn't have dynamic mqsc files but have `.env` files because we will be promoting UAT mqsc to PTE then PRD
+**Description**: This repo has a similar folder structure as our [gitops repo](https://github.com/IBMMQAutomation/mq-pipeline) for 5 different evironments such as DEV, SIT, UAT, PTE and PRD. Each environment has different queue manager folders and each queue manager folder has `dynamic.mqsc` and `.env`. In this pipeline, git-task will git clone this repo and inject values from all the `.env` files to its appropriate `dynamic.mqsc`. This way you can parameterized certains things such as route for receiver QM. Notice that `prd` and `pte` don't have dynamic mqsc files but have `.env` files because we will be promoting UAT mqsc to PTE then PRD
+
+- Access: Developers will create PR and Admins will review and approve PRs
 
 ```
 ├── dev
@@ -32,10 +34,6 @@
 │       └── .env
 
 ```
-
-- In this pipeline, git-task will git clone this repo and inject values from all the `.env` files to its appropriate `dynamic.mqsc`. This way you can parameterized certains things such as route for receiver QM
-
-- Suggested access for this repo: developer and admins
 
 ## Steps
 
