@@ -1,0 +1,55 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: dynamic-mqsc
+  namespace: mq
+spec:
+  workspaces:
+    - name: source
+
+  params:
+    - name: GIT_SECRET
+      default: "git-credentials"
+    - name: source-dir
+      default: /source
+    - name: git-cli-image
+      default: docker.io/alpine/git:v2.26.2@sha256:23618034b0be9205d9cc0846eb711b12ba4c9b468efdd8a59aac1d7b1a23363f
+      # mqsc repo
+    - name: git-mqsc-url
+      default: github.com/IBMMQAutomation/dynamic-mqsc.git
+    - name: mqsc-git-branch
+      default: master
+    - name: mqsc-subdirectory
+      default: dynamic-mqsc
+      # gitops repo
+    - name: gitops-subdirectory
+      default: mq-pipeline
+    - name: git-gitops-url
+      default: github.com/IBMMQAutomation/mq-pipeline.git
+    - name: gitops-git-branch
+      default: main
+  tasks:
+    - name: git-task-dev
+      params:
+        - name: git-mqsc-clone
+          value: "git clone https://${GIT_USERNAME}:${GIT_PASSWORD}@$(params.git-mqsc-url)"
+        - name: mqsc-subdirectory
+          value: $(params.mqsc-subdirectory)
+        - name: GIT_SECRET
+          value: $(params.GIT_SECRET)
+        - name: source-dir
+          value: $(params.source-dir)
+        - name: git-cli-image
+          value: $(params.git-cli-image)
+        - name: gitops-subdirectory
+          value: $(params.gitops-subdirectory)
+        - name: git-gitops-clone
+          value: "git clone https://${GIT_USERNAME}:${GIT_PASSWORD}@$(params.git-gitops-url)"
+        - name: gitops-git-branch
+          value: $(params.gitops-git-branch)
+      taskRef:
+        kind: Task
+        name: git-task-dev
+      workspaces:
+        - name: source
+          workspace: source

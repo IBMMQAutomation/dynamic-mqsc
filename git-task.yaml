@@ -1,0 +1,74 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: git-task-dev
+  namespace: mq
+spec:
+  params:
+    - name: git-mqsc-clone
+    - name: mqsc-subdirectory
+    - name: GIT_SECRET
+    - name: source-dir
+    - name: git-cli-image
+    - name: gitops-subdirectory
+    - name: git-gitops-clone
+    - name: gitops-git-branch
+
+  workspaces:
+    - name: source
+      mountPath: $(params.source-dir)
+
+  steps:
+    - name: git-pull
+      image: $(params.git-cli-image)
+      env:
+        - name: GIT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: $(params.GIT_SECRET)
+              key: password
+              optional: true
+        - name: GIT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: $(params.GIT_SECRET)
+              key: username
+              optional: true
+        - name: GIT_EMAIL
+          valueFrom:
+            secretKeyRef:
+              name: $(params.GIT_SECRET)
+              key: email
+              optional: true
+      resources: {}
+      script: |
+        git config --global user.email "$GIT_EMAIL"
+        git config --global user.name "$GIT_USERNAME"
+        $(params.git-mqsc-clone)
+        $(params.git-gitops-clone)
+        rm -rf $(params.mqsc-subdirectory)/.git
+        cd $(params.mqsc-subdirectory)
+        cp -u -a uat/. pte
+        cp -u -a uat/. prd
+        cd ..
+        for env in $(params.mqsc-subdirectory)/*
+          do
+            if [ -d "$env" ] && [ "$env" != "$(params.mqsc-subdirectory)/readme-images" ]; then
+              for qm in $env/*
+              do
+                  source $qm/.env
+                  eval "echo \"$(cat $qm/dynamic.mqsc)\"" > $qm/dynamic.mqsc
+                  rm $qm/.env
+              done
+            fi
+        done
+        cp -R $(params.mqsc-subdirectory)/dev $(params.gitops-subdirectory)/
+        cp -R $(params.mqsc-subdirectory)/sit $(params.gitops-subdirectory)/
+        cp -R $(params.mqsc-subdirectory)/uat $(params.gitops-subdirectory)/
+        cp -R $(params.mqsc-subdirectory)/pte $(params.gitops-subdirectory)/
+        cp -R $(params.mqsc-subdirectory)/prd $(params.gitops-subdirectory)/
+        cd $(params.gitops-subdirectory)
+        git add .
+        git commit -m "tekton added dynamic mqsc"
+        git push
+      workingDir: $(params.source-dir)
